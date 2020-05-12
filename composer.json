@@ -15,6 +15,7 @@
         "laravel/framework": "^7.0",
         "laravel/socialite": "^4.3",
         "laravel/tinker": "^2.0",
+        "laravel/ui": "^2.0",
         "soved/laravel-gdpr": "^1.5"
     },
     "require-dev": {
