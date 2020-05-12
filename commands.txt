@@ -1,0 +1,5 @@
+php artisan ide-helper:models -W
+php artisan ide-helper:eloquent
+php artisan ide-helper:generate
+php artisan ide-helper:meta
+php artisan vendor:publish --all
