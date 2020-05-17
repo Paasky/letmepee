@@ -17,7 +17,9 @@
         "laravel/socialite": "^4.3",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^2.0",
-        "soved/laravel-gdpr": "^1.5"
+        "soved/laravel-gdpr": "^1.5",
+        "ext-json": "*",
+      "ext-pdo": "*"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.7",

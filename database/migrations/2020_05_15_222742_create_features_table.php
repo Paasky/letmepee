@@ -1,11 +1,14 @@
 <?php
 
+use App\MigrationColumns;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateLocationUsersTable extends Migration
+class CreateFeaturesTable extends Migration
 {
+    use MigrationColumns;
+
     /**
      * Run the migrations.
      *
@@ -13,11 +16,10 @@ class CreateLocationUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('location_users', function (Blueprint $table) {
-            $table->id();
-            $table->bigInteger('location_id')->index();
-            $table->bigInteger('user_id')->index();
-            $table->timestamps();
+        Schema::create('features', function (Blueprint $table) {
+            $table->string('id', 255)->index();
+            self::title($table);
+            self::description($table);
         });
     }
 
@@ -28,6 +30,6 @@ class CreateLocationUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('location_users');
+        Schema::dropIfExists('features');
     }
 }

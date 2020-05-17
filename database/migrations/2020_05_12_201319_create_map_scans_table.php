@@ -1,11 +1,14 @@
 <?php
 
+use App\MigrationColumns;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 class CreateMapScansTable extends Migration
 {
+    use MigrationColumns;
+
     /**
      * Run the migrations.
      *
@@ -15,9 +18,8 @@ class CreateMapScansTable extends Migration
     {
         Schema::create('map_scans', function (Blueprint $table) {
             $table->id();
-            $table->point('coords')->index();
-            $table->decimal('lat', 10, 7)->index();
-            $table->decimal('lng', 10, 7)->index();
+            self::coords($table);
+            $table->integer('range')->unsigned();
             $table->timestamps();
         });
     }

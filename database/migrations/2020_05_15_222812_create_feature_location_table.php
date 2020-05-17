@@ -1,11 +1,14 @@
 <?php
 
+use App\MigrationColumns;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateLocationDetailsTable extends Migration
+class CreateFeatureLocationTable extends Migration
 {
+    use MigrationColumns;
+
     /**
      * Run the migrations.
      *
@@ -13,12 +16,12 @@ class CreateLocationDetailsTable extends Migration
      */
     public function up()
     {
-        Schema::create('location_details', function (Blueprint $table) {
+        Schema::create('feature_location', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('location_id')->index();
-            $table->string('type')->index();
-            $table->string('status')->index();
-            $table->longText('description');
+            self::featureId($table);
+            self::locationId($table);
+            self::userId($table);
+            self::description($table);
             $table->timestamps();
         });
     }
@@ -30,6 +33,6 @@ class CreateLocationDetailsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('location_details');
+        Schema::dropIfExists('feature_location');
     }
 }

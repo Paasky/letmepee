@@ -1,11 +1,14 @@
 <?php
 
+use App\MigrationColumns;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateLocationDetailUsersTable extends Migration
+class CreateApprovalsTable extends Migration
 {
+    use MigrationColumns;
+
     /**
      * Run the migrations.
      *
@@ -13,10 +16,12 @@ class CreateLocationDetailUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('location_detail_users', function (Blueprint $table) {
+        Schema::create('approvals', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('location_detail_id')->index();
-            $table->bigInteger('user_id')->index();
+            $table->string('entity_type', 255)->index();
+            $table->bigInteger('entity_id')->index();
+            self::userId($table);
+            $table->boolean('is_approved')->index();
             $table->timestamps();
         });
     }
@@ -28,6 +33,6 @@ class CreateLocationDetailUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('location_detail_users');
+        Schema::dropIfExists('approvals');
     }
 }

@@ -25,7 +25,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $tags
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
- * @property-read Model|LmpModel|Eloquent $auditable
+ * @property-read Model|Eloquent $auditable
  * @property-read User|Eloquent $user
  * @method static Builder|Audit newModelQuery()
  * @method static Builder|Audit newQuery()
