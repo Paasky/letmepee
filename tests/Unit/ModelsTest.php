@@ -103,10 +103,18 @@ class ModelsTest extends TestCase
         $locationType = LocationType::bar();
         $user = $this->user();
         $location = $this->location($coords, $locationType, $user);
+        $feature = Feature::soap();
+        $featureLocation = $this->featureLocation($feature, $location);
+        $user2 = $this->user();
+        $review = $this->review($location, $user2);
 
         $this::assertEquals($coords->toJson(), $location->coords->toJson());
         $this::assertEquals($locationType->id, $location->type->id);
         $this::assertEquals($user->id, $location->user->id);
+        $this::assertEquals($featureLocation->id, $location->featureLocations[0]->id);
+        $this::assertEquals($feature->id, $location->features[0]->id);
+        $this::assertEquals($review->id, $location->reviews[0]->id);
+        $this::assertEquals($user2->id, $location->reviewers[0]->id);
     }
 
     public function testLocationType()

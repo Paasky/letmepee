@@ -12,7 +12,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Carbon;
 use OwenIt\Auditing\Models\Audit;
@@ -131,9 +130,9 @@ class Location extends LmpModel
         return $this->belongsToMany(Feature::class);
     }
 
-    public function reviewers(): HasManyThrough
+    public function reviewers(): BelongsToMany
     {
-        return $this->hasManyThrough(User::class, Review::class);
+        return $this->belongsToMany(User::class, 'reviews');
     }
 
     public function reviews(): HasMany
