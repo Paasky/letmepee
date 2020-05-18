@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Common\HasCoordinates;
 use App\Models\Common\LmpModel;
 use App\User;
 use Eloquent;
-use Grimzy\LaravelMysqlSpatial\Eloquent\SpatialTrait;
 use Grimzy\LaravelMysqlSpatial\Types\Point;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -80,7 +80,7 @@ use OwenIt\Auditing\Models\Audit;
  */
 class Location extends LmpModel
 {
-    use SpatialTrait;
+    use HasCoordinates;
 
     public const TYPE_BAR = 'bar';
     public const TYPE_BUILDING = 'building';
@@ -100,10 +100,6 @@ class Location extends LmpModel
         self::STATUS_VERIFIED,
     ];
 
-    protected $spatialFields = [
-        'coords'
-    ];
-
     protected $fillable = [
         'location_type_id',
         'user_id',
@@ -111,8 +107,6 @@ class Location extends LmpModel
         'description',
         'status',
         'coords',
-        'lat',
-        'lng',
     ];
 
     public function approvals(): MorphMany

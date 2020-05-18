@@ -19,7 +19,8 @@
         "laravel/ui": "^2.0",
         "soved/laravel-gdpr": "^1.5",
         "ext-json": "*",
-      "ext-pdo": "*"
+        "ext-pdo": "*",
+        "doctrine/dbal": "^2.10"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.7",

@@ -86,20 +86,21 @@ class ModelsTest extends TestCase
     public function testLocation()
     {
         // 1) Test fillables
+        $coords = $this->coords();
         $modelParams = [
             'location_type_id' => 'an-id',
             'user_id' => 34,
             'title' => 'cool location',
             'description' => 'descriptive',
             'status' => Location::STATUS_VERIFIED,
-            'coords' => $this->coords(),
-            'lat' => 12.34567,
-            'lng' => 23.456789,
+            'coords' => $coords,
         ];
-        $this::assertEquals($modelParams, (new Location($modelParams))->toArray());
+        $this::assertEquals(
+            $modelParams + ['lat' => $coords->getLat(), 'lng' => $coords->getLng()],
+            (new Location($modelParams))->toArray()
+        );
 
         // 2) Test relations & special columns
-        $coords = $this->coords();
         $locationType = LocationType::bar();
         $user = $this->user();
         $location = $this->location($coords, $locationType, $user);
@@ -115,6 +116,21 @@ class ModelsTest extends TestCase
         $this::assertEquals($feature->id, $location->features[0]->id);
         $this::assertEquals($review->id, $location->reviews[0]->id);
         $this::assertEquals($user2->id, $location->reviewers[0]->id);
+
+        // 3) Assert throws on lat-lng
+        $this::assertThrows(
+            function() {
+                new Location(['lat' => 12.34]);
+            },
+            new \BadFunctionCallException("lat-attribute is read-only. Set coords to update lat-lng values")
+        );
+        $this::assertThrows(
+            function() {
+                $location = new Location();
+                $location->lng = 12.34;
+            },
+            new \BadFunctionCallException("lng-attribute is read-only. Set coords to update lat-lng values")
+        );
     }
 
     public function testLocationType()

@@ -18,6 +18,38 @@ abstract class TestCase extends BaseTestCase
 
     protected $autoSaveModels = false;
 
+    public static function assertThrows(
+        callable $thrownIn,
+        \Throwable $expectedThrowable = null,
+        string $outputMessage = 'Nothing was thrown'
+    ): void {
+        $wasThrown = false;
+        try {
+            $thrownIn();
+        } catch (\Throwable $e) {
+            $wasThrown = true;
+
+            if ($expectedThrowable) {
+                $thrownClass = get_class($e);
+                $expectedClass = get_class($expectedThrowable);
+                static::assertTrue(
+                    $e instanceof $expectedThrowable,
+                    "$thrownClass was thrown, expected $expectedClass"
+                );
+
+                if ($expectedThrowable->getMessage()) {
+                    static::assertEquals(
+                        $expectedThrowable->getMessage(),
+                        $e->getMessage(),
+                        "Wrong message was thrown"
+                    );
+                }
+            }
+        }
+
+        static::assertTrue($wasThrown, $outputMessage);
+    }
+
     /**
      * @param bool $isApproved
      * @param FeatureLocation|Location|Review $entity
@@ -98,8 +130,6 @@ abstract class TestCase extends BaseTestCase
             'description' => 'Gotta do wotcha gotta do',
             'status' => Location::STATUS_VERIFIED,
             'coords' => $coords,
-            'lat' => $coords->getLat(),
-            'lng' => $coords->getLng(),
         ]);
 
         if ($this->autoSaveModels) {

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Common\HasCoordinates;
 use App\Models\Common\LmpModel;
 use Eloquent;
 use Grimzy\LaravelMysqlSpatial\Types\Point;
@@ -36,5 +37,5 @@ use OwenIt\Auditing\Models\Audit;
  */
 class MapScan extends LmpModel
 {
-    //
+    use HasCoordinates;
 }

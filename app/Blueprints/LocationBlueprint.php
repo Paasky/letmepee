@@ -4,27 +4,32 @@ namespace App\Blueprints;
 
 use app\Exceptions\InvalidArgumentsException;
 use App\Models\Common\LmpModel;
+use App\Models\Feature;
 use App\Models\Location;
+use App\Models\LocationType;
 use App\User;
 use app\Validators\PointValidator;
+use app\Validators\RelatedUserValidator;
 use Grimzy\LaravelMysqlSpatial\Types\Point;
 
 class LocationBlueprint implements Blueprint
 {
     protected Point $coords;
-    protected string $name;
-    protected string $type;
-    protected string $status = Location::STATUS_UNVERIFIED;
-    protected string $description;
+    protected LocationType $type;
     protected User $user;
+    protected string $title;
+    /** @var string|null */
+    protected $description;
+    protected string $status = Location::STATUS_UNVERIFIED;
+    /** @var Feature[] */
+    protected array $features = [];
 
-    public function __construct(Point $coords, string $name, string $type, string $description, User $user)
+    public function __construct(Point $coords, LocationType $type, User $user, string $title)
     {
         $this->coords = $coords;
-        $this->name = $name;
         $this->type = $type;
-        $this->description = $description;
         $this->user = $user;
+        $this->title = $title;
     }
 
     /**
@@ -35,11 +40,12 @@ class LocationBlueprint implements Blueprint
     {
         return (new static(
             $model->coords,
-            $model->name,
             $model->type,
-            $model->description,
-            $model->user
-        ))->setStatus($model->status);
+            $model->user,
+            $model->title
+        ))
+            ->setStatus($model->status)
+            ->setDescription($model->description);
     }
 
     /**
@@ -55,8 +61,20 @@ class LocationBlueprint implements Blueprint
             $errors[] = "Invalid coords: {$e->getMessage()}";
         }
 
-        if (!$this->name) {
-            $errors[] = "Name is empty";
+        foreach (array_keys($this->features) as $featureId) {
+            if (!in_array($featureId, Feature::IDS, true)) {
+                $errors[] = "Invalid feature ID `$featureId`";
+            }
+        }
+
+        try {
+            RelatedUserValidator::isValid($this->user, true);
+        } catch (\InvalidArgumentException $e) {
+            $errors[] = "Invalid user: {$e->getMessage()}";
+        }
+
+        if (!$this->title) {
+            $errors[] = "Title is empty";
         }
 
         if (!$this->type) {
@@ -69,10 +87,6 @@ class LocationBlueprint implements Blueprint
             $errors[] = "Status is empty";
         } elseif (!in_array($this->status, Location::STATUSES, true)) {
             $errors[] = "Unknown status `$this->status`";
-        }
-
-        if (!$this->description) {
-            $errors[] = "Description is empty";
         }
 
         if ($errors) {
@@ -94,14 +108,32 @@ class LocationBlueprint implements Blueprint
         }
 
         return [
+            'location_type_id' => $this->type->id,
+            'user_id' => $this->user->id,
             'coords' => $this->coords,
-            'lat' => $this->coords->getLat(),
-            'lng' => $this->coords->getLng(),
-            'name' => $this->name,
-            'type' => $this->type,
+            'title' => $this->title,
             'status' => $this->status,
-            'description' => $this->description,
+            'description' => $this->description ?: null,
         ];
+    }
+
+    public function getFeatureLocationsParams(Location $location, bool $validate = true): array
+    {
+        if ($validate) {
+            $this->isValid(true);
+        }
+
+        $params = [];
+        foreach ($this->features as $featureId => $description) {
+            $params[] = [
+                'feature_id' => $featureId,
+                'location_id' => $location->id,
+                'user_id' => $this->user->id,
+                'description' => $description,
+            ];
+        }
+
+        return $params;
     }
 
     /**
@@ -144,34 +176,34 @@ class LocationBlueprint implements Blueprint
     /**
      * @return string
      */
-    public function getName(): string
+    public function getTitle(): string
     {
-        return $this->name;
+        return $this->title;
     }
 
     /**
-     * @param string $name
+     * @param string $title
      * @return LocationBlueprint
      */
-    public function setName(string $name): LocationBlueprint
+    public function setTitle(string $title): LocationBlueprint
     {
-        $this->name = $name;
+        $this->title = $title;
         return $this;
     }
 
     /**
-     * @return string
+     * @return LocationType
      */
-    public function getType(): string
+    public function getType(): LocationType
     {
         return $this->type;
     }
 
     /**
-     * @param string $type
+     * @param LocationType $type
      * @return LocationBlueprint
      */
-    public function setType(string $type): LocationBlueprint
+    public function setType(LocationType $type): LocationBlueprint
     {
         $this->type = $type;
         return $this;
@@ -196,20 +228,57 @@ class LocationBlueprint implements Blueprint
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
-        return $this->description;
+        return $this->description ?: null;
     }
 
     /**
-     * @param string $description
+     * @param string|null $description
      * @return LocationBlueprint
      */
-    public function setDescription(string $description): LocationBlueprint
+    public function setDescription(?string $description): LocationBlueprint
     {
-        $this->description = $description;
+        $this->description = $description ?: null;
+        return $this;
+    }
+
+    /**
+     * @return User
+     */
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param User $user
+     * @return LocationBlueprint
+     */
+    public function setUser(User $user): LocationBlueprint
+    {
+        $this->user = $user;
+        return $this;
+    }
+
+    /**
+     * @return Feature[]
+     */
+    public function getFeatures(): array
+    {
+        return $this->features;
+    }
+
+    /**
+     * @param string $featureId
+     * @param string|null $description
+     * @return LocationBlueprint
+     */
+    public function addFeature(string $featureId, string $description = null): LocationBlueprint
+    {
+        $this->features[$featureId] = $description;
         return $this;
     }
 }
